@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import validator from "validator";
 
 const userSchema = new mongoose.Schema(
   {
@@ -14,7 +15,12 @@ const userSchema = new mongoose.Schema(
       unique: true,
       required: true,
       lowercase: true,
-      trim: true
+      trim: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Invalid email address");
+        }
+      }
     },
     password: {
       type: String,
@@ -34,7 +40,20 @@ const userSchema = new mongoose.Schema(
     },
     photoUrl: {
       type: String,
-      default: "https://avatar.iran.liara.run/public/6"
+      default: "https://avatar.iran.liara.run/public/6",
+      validate(value) {
+        if (value && !validator.isURL(value)) {
+          throw new Error("Invalid URL for photo");
+        }
+    },
+    skills: {
+      type: [String],
+      default: [],
+      maxlength: 10
+    },
+    bio: {
+      type: String,
+      maxlength: 500
     }
   },
   { timestamps: true }

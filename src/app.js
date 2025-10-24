@@ -47,6 +47,18 @@ app.delete("/user/:id", async (req, res) => {
 
 app.patch("/user/:id", async (req, res) => {
   try {
+    const ALLOWED_UPDATES = ["name", "age", "photo", "skills", "bio"];
+
+    const isUpdatesValid = Object.keys(req.body).every((update) =>
+      ALLOWED_UPDATES.includes(update)
+    );
+
+    if (!isUpdatesValid) {
+      throw new Error("You are trying to update fields which are not allowed");
+    }
+    if (req.body.skills && req.body.skills.length > 10) {
+      throw new Error("You can add maximum 10 skills");
+    }
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
@@ -56,7 +68,7 @@ app.patch("/user/:id", async (req, res) => {
     }
     res.send(user);
   } catch (err) {
-    return res.status(500).send("Error updating user " + err.message);
+    return res.status(500).send("Error updating user :- " + err.message);
   }
 });
 // error handling middleware
