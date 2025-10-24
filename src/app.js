@@ -1,13 +1,45 @@
 import express from "express";
 import connectDB from "./config/db.js";
 import User from "./models/user.js";
+import { signUpValidator, loginValidator } from "./validators/signup.js";
+import bcrypt from "bcrypt";
+
 const app = express();
 
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  const userObject = new User(req.body);
   try {
+    signUpValidator(req.body);
+  } catch (err) {
+    return res.status(400).send("Validation Error: " + err.message);
+  }
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    age,
+    gender,
+    photoUrl,
+    skills,
+    bio
+  } = req.body;
+
+  const userObject = new User({
+    firstName,
+    lastName,
+    email,
+    password,
+    age,
+    gender,
+    photoUrl,
+    skills,
+    bio
+  });
+  try {
+    const passwordHash = await bcrypt.hash(req.body.password, 10);
+    userObject.password = passwordHash;
     await userObject.save();
     res.send("User signed up successfully");
   } catch (err) {
@@ -71,6 +103,29 @@ app.patch("/user/:id", async (req, res) => {
     return res.status(500).send("Error updating user :- " + err.message);
   }
 });
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    loginValidator(req.body);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send("Invalid username or password");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid username or password");
+    }
+
+    res.send("User logged in successfully");
+  } catch (err) {
+    return res.status(500).send("Error logging in user:- " + err.message);
+  }
+});
+
 // error handling middleware
 app.use((err, req, res, next) => {
   if (err) {
