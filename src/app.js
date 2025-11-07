@@ -3,10 +3,12 @@ import connectDB from "./config/db.js";
 import User from "./models/user.js";
 import { signUpValidator, loginValidator } from "./validators/signup.js";
 import bcrypt from "bcrypt";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
@@ -116,13 +118,30 @@ app.post("/login", async (req, res) => {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    if (isPasswordValid) {
+      res.cookie("token", "evejandsfmnajodnfkdNFOASNFKANDFOADSNKNO");
+      res.send("User logged in successfully");
+    } else {
       throw new Error("Invalid username or password");
     }
-
-    res.send("User logged in successfully");
   } catch (err) {
     return res.status(500).send("Error logging in user:- " + err.message);
+  }
+});
+
+app.get("/profile", async (req, res) => {
+  // cookie-parser populates req.cookies
+  const token = req.cookies && req.cookies.token;
+  console.log({ token });
+
+  if (!token) {
+    return res.status(401).send("Unauthorized: No token provided");
+  }
+
+  try {
+    res.send("User profile data");
+  } catch (err) {
+    return res.status(500).send("Error fetching profile:- " + err.message);
   }
 });
 
