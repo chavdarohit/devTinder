@@ -1,4 +1,5 @@
 import express from "express";
+import JWT from "jsonwebtoken";
 import connectDB from "./config/db.js";
 import User from "./models/user.js";
 import { signUpValidator, loginValidator } from "./validators/signup.js";
@@ -119,7 +120,10 @@ app.post("/login", async (req, res) => {
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
-      res.cookie("token", "evejandsfmnajodnfkdNFOASNFKANDFOADSNKNO");
+      const token = JWT.sign({ _id: user._id }, "DEV@TINDER08", {
+        expiresIn: "1h"
+      });
+      res.cookie("token", token);
       res.send("User logged in successfully");
     } else {
       throw new Error("Invalid username or password");
@@ -130,15 +134,22 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/profile", async (req, res) => {
-  // cookie-parser populates req.cookies
-  const token = req.cookies && req.cookies.token;
-  console.log({ token });
-
-  if (!token) {
-    return res.status(401).send("Unauthorized: No token provided");
-  }
-
   try {
+    const token = req.cookies && req.cookies.token;
+
+    if (!token) {
+      throw new Error("Authentication token not found");
+    }
+
+    const decodedMessage = JWT.verify(token, "DEV@TINDER08");
+
+    const userId = decodedMessage._id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     res.send("User profile data");
   } catch (err) {
     return res.status(500).send("Error fetching profile:- " + err.message);
