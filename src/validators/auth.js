@@ -1,5 +1,5 @@
 import validator from "validator";
-export const signUpValidator = (data) => {
+export const signUpValidator = (data = {}) => {
   const { email, firstName, lastName, password } = data;
 
   if (!firstName || !lastName) {
@@ -10,7 +10,7 @@ export const signUpValidator = (data) => {
     );
   }
 
-  if (!validator.isEmail(email)) {
+  if (!email || (email && !validator.isEmail(email))) {
     throw new Error("Invalid email address");
   }
 
