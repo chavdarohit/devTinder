@@ -1,6 +1,10 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
-import { validateEditProfile } from "../validators/profile.js";
+import bcrypt from "bcrypt";
+import {
+  validateEditProfile,
+  validatePasswordUpdate
+} from "../validators/profile.js";
 
 const router = express.Router();
 router.get("/profile/view", auth, async (req, res) => {
@@ -32,6 +36,28 @@ router.patch("/profile/edit", auth, (req, res) => {
       );
   } catch (err) {
     return res.status(400).send("Error updating profile:- " + err.message);
+  }
+});
+
+router.patch("/password/update", auth, async (req, res) => {
+  try {
+    const { existingPassword, newPassword } = req.body || {};
+
+    const user = req.user;
+
+    const isValidForUpdate = await validatePasswordUpdate(
+      existingPassword,
+      newPassword,
+      user
+    );
+
+    if (isValidForUpdate) {
+      user.password = await bcrypt.hash(newPassword, 10);
+      await user.save();
+      res.send("Password updated successfully");
+    }
+  } catch (err) {
+    return res.status(400).send("Error updating password: " + err.message);
   }
 });
 

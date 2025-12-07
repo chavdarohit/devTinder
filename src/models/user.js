@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema(
     age: {
       type: Number,
       validate(value) {
-        if (typeof value === "number") {
+        if (typeof value !== "number") {
           throw new Error("Age must be a number");
         }
       }
