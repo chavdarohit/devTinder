@@ -51,4 +51,38 @@ router.post("/request/send/:status/:toUserId", auth, async (req, res) => {
   }
 });
 
+router.post("/request/review/:status/:requestId", auth, async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const { status, requestId } = req.params;
+
+    const allowStatuses = ["accepted", "rejected"];
+    if (!allowStatuses.includes(status)) {
+      res.status(404).json({ message: "Status not allowed" });
+    }
+
+    const connectionRequest = await ConnectionRequest.findOne({
+      _id: requestId,
+      toUserId: loggedInUser._id,
+      status: "interested"
+    });
+
+    if (!connectionRequest) {
+      res
+        .status(404)
+        .json({ message: "Connection request not found or already processed" });
+    }
+
+    connectionRequest.status = status;
+    const updatedRequest = await connectionRequest.save();
+    res.status(200);
+    res.json({
+      message: `Connection request ${status} successfully`,
+      data: updatedRequest
+    });
+  } catch (error) {
+    res.status(500).json({ "ERROR: ": error.message });
+  }
+});
+
 export default router;
