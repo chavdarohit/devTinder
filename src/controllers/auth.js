@@ -57,7 +57,7 @@ export const login = async (req, res) => {
     if (isPasswordValid) {
       const token = await user.getJWT();
       res.cookie("token", token);
-      res.send("User logged in successfully");
+      res.json({ message: "User logged in successfully", user });
     } else {
       throw new Error("Invalid username or password");
     }
