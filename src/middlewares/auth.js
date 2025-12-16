@@ -6,7 +6,7 @@ const auth = async (req, res, next) => {
     const { token } = req.cookies;
 
     if (!token) {
-      throw new Error("Authentication token not found");
+      return res.status(401).send("Please Login to access this resource");
     }
     const decodedMessage = await JWT.verify(token, "DEV@TINDER08");
 

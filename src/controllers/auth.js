@@ -49,7 +49,7 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).send("Invalid username or password");
+      return res.status(401).send("Invalid username or password");
     }
 
     const isPasswordValid = await user.comparePassword(password);
@@ -59,7 +59,7 @@ export const login = async (req, res) => {
       res.cookie("token", token);
       res.json({ message: "User logged in successfully", user });
     } else {
-      throw new Error("Invalid username or password");
+      return res.status(401).send("Invalid username or password");
     }
   } catch (err) {
     return res.status(500).send("Error logging in user:- " + err.message);

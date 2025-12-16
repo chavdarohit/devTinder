@@ -93,8 +93,12 @@ userSchema.methods.getJWT = async function () {
 };
 
 userSchema.methods.comparePassword = async function (passwordByUser) {
-  const user = this;
-  return await bcrypt.compare(passwordByUser, user.password);
+  try {
+    const user = this;
+    return await bcrypt.compare(passwordByUser, user.password);
+  } catch (err) {
+    throw new Error("Invalid password");
+  }
 };
 
 const User = mongoose.model("User", userSchema);
