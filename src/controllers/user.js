@@ -70,7 +70,7 @@ export const feed = async (req, res) => {
         { _id: { $nin: Array.from(hideUserFromFeed) } }
       ]
     })
-      .select("firstName lastName skills photoUrl bio")
+      .select("firstName lastName skills photoUrl bio age gender")
       .skip(skip)
       .limit(limit);
 
