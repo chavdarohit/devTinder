@@ -32,7 +32,7 @@ export const profileEdit = (req, res) => {
         res.status(400).send("Error saving updated profile:- " + err.message)
       );
   } catch (err) {
-    return res.status(400).send("Error updating profile:- " + err.message);
+    return res.status(400).send("Error updating profile");
   }
 };
 
