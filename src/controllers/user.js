@@ -8,7 +8,15 @@ export const userRequestReceived = async (req, res) => {
     const connectionRequests = await ConnectionRequest.find({
       toUserId: loggedInUser._id,
       status: "interested"
-    }).populate("fromUserId", ["firstName", " lastName"]); // more ways to write
+    }).populate("fromUserId", [
+      "firstName",
+      " lastName",
+      "bio",
+      "age",
+      "gender",
+      "photoUrl",
+      "skills"
+    ]); // more ways to write
     // }).populate("fromUserId", "firstName lastName");
 
     res
@@ -29,8 +37,24 @@ export const userConnections = async (req, res) => {
         { toUserId: loggedInUser._id, status: "accepted" }
       ]
     })
-      .populate("fromUserId toUserId", ["firstName", "lastName"])
-      .populate("toUserId", ["firstName", "lastName"]);
+      .populate("fromUserId toUserId", [
+        "firstName",
+        "lastName",
+        "bio",
+        "age",
+        "gender",
+        "photoUrl",
+        "skills"
+      ])
+      .populate("toUserId", [
+        "firstName",
+        "lastName",
+        "bio",
+        "age",
+        "gender",
+        "photoUrl",
+        "skills"
+      ]);
 
     const data = connections.map((row) => {
       if (row.fromUserId._id.equals(loggedInUser._id)) {
