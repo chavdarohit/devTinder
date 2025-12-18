@@ -55,7 +55,7 @@ export const requestReview = async (req, res) => {
 
     const allowStatuses = ["accepted", "rejected"];
     if (!allowStatuses.includes(status)) {
-      res.status(404).json({ message: "Status not allowed" });
+      return res.status(404).json({ message: "Status not allowed" });
     }
 
     const connectionRequest = await ConnectionRequest.findOne({
@@ -65,7 +65,7 @@ export const requestReview = async (req, res) => {
     });
 
     if (!connectionRequest) {
-      res
+      return res
         .status(404)
         .json({ message: "Connection request not found or already processed" });
     }
