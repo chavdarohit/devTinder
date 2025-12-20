@@ -1,6 +1,6 @@
 import validator from "validator";
 export const signUpValidator = (data = {}) => {
-  const { email, firstName, lastName, password } = data;
+  const { email, firstName, lastName, password, age } = data;
 
   if (!firstName || !lastName) {
     throw new Error("First name and Last name are required");
@@ -8,6 +8,10 @@ export const signUpValidator = (data = {}) => {
     throw new Error(
       "First name and Last name should be less than 30 characters"
     );
+  }
+
+  if (age && typeof age !== "number") {
+    throw new Error("Age is required and must be a number");
   }
 
   if (!email || (email && !validator.isEmail(email))) {

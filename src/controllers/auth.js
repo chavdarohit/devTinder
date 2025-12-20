@@ -34,8 +34,12 @@ export const signUp = async (req, res) => {
   try {
     const passwordHash = await bcrypt.hash(req.body.password, 10);
     userObject.password = passwordHash;
-    await userObject.save();
-    res.send("User signed up successfully");
+    const saveUser = await userObject.save();
+
+    const token = await saveUser.getJWT();
+    res.cookie("token", token);
+
+    res.json({ message: "User signed up successfully", user: saveUser });
   } catch (err) {
     return res.status(400).send("Error signing up user" + err.message);
   }
