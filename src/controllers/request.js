@@ -19,8 +19,8 @@ export const requestSend = async (req, res) => {
 
     const existingRequest = await ConnectionRequest.findOne({
       $or: [
-        { fromUserId, toUserId },
-        { fromUserId: toUserId, toUserId: fromUserId }
+        { fromUserId, toUserId: toUser._id },
+        { fromUserId: toUser._id, toUserId: fromUserId }
       ]
     });
 
