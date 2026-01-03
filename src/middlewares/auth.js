@@ -23,7 +23,7 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    res.status(400).send("Authentication failed: " + err.message);
+    res.status(401).send("Authentication failed: " + err.message);
   }
 };
 export default auth;
