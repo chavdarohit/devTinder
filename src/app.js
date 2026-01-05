@@ -1,8 +1,11 @@
+import dotenv from "dotenv";
 import express from "express";
 import connectDB from "./config/db.js";
 import cookieParser from "cookie-parser";
 import setupAPI from "./routes/index.js";
 import cors from "cors";
+
+dotenv.config();
 
 const app = express();
 
@@ -20,7 +23,7 @@ setupAPI(app);
 // error handling middleware
 app.use((err, res) => {
   if (err) {
-    console.error(err.stack);
+    console.error(err);
     res.status(500).send("Something not working good there is some problem!");
   }
 });
@@ -30,8 +33,8 @@ app.use((err, res) => {
 connectDB()
   .then(() => {
     console.log("Database connected successfully");
-    app.listen(3000, () => {
-      console.log("Server is running on port 3000");
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is running on port ${process.env.PORT}`);
     });
   })
   .catch((err) => {

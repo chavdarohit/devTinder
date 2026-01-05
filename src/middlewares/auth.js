@@ -8,7 +8,7 @@ const auth = async (req, res, next) => {
     if (!token) {
       return res.status(401).send("Please Login to access this resource");
     }
-    const decodedMessage = await JWT.verify(token, "DEV@TINDER08");
+    const decodedMessage = await JWT.verify(token, process.env.JWT_SECRET);
 
     if (!decodedMessage) {
       throw new Error("Invalid authentication token");
