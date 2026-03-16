@@ -1,5 +1,6 @@
 import ConnectionRequest from "../models/connectionRequest.js";
 import User from "../models/user.js";
+import { run as sendEmail } from "../utils/sendEmail.js";
 
 export const requestSend = async (req, res) => {
   try {
@@ -20,8 +21,8 @@ export const requestSend = async (req, res) => {
     const existingRequest = await ConnectionRequest.findOne({
       $or: [
         { fromUserId, toUserId: toUser._id },
-        { fromUserId: toUser._id, toUserId: fromUserId }
-      ]
+        { fromUserId: toUser._id, toUserId: fromUserId },
+      ],
     });
 
     if (existingRequest) {
@@ -33,15 +34,22 @@ export const requestSend = async (req, res) => {
     const connectionRequest = new ConnectionRequest({
       fromUserId,
       toUserId,
-      status
+      status,
     });
     const data = await connectionRequest.save();
+
+    try {
+      status.includes("interested") && (await sendEmail());
+    } catch (err) {
+      console.log("Email Error: ", err.message);
+    }
+
     res.json({
       message:
         status === "interested"
           ? req.user.firstName + " is " + status + " in " + toUser.firstName
           : req.user.firstName + " " + status + " " + toUser.firstName,
-      data
+      data,
     });
   } catch (error) {
     res.status(400).json({ "ERROR: ": error.message });
@@ -61,7 +69,7 @@ export const requestReview = async (req, res) => {
     const connectionRequest = await ConnectionRequest.findOne({
       _id: requestId,
       toUserId: loggedInUser._id,
-      status: "interested"
+      status: "interested",
     });
 
     if (!connectionRequest) {
@@ -75,7 +83,7 @@ export const requestReview = async (req, res) => {
     res.status(200);
     res.json({
       message: `Connection request ${status} successfully`,
-      data: updatedRequest
+      data: updatedRequest,
     });
   } catch (error) {
     res.status(500).json({ "ERROR: ": error.message });
