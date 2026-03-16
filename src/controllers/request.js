@@ -1,6 +1,6 @@
 import ConnectionRequest from "../models/connectionRequest.js";
 import User from "../models/user.js";
-import { run as sendEmail } from "../utils/sendEmail.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 export const requestSend = async (req, res) => {
   try {
@@ -39,7 +39,7 @@ export const requestSend = async (req, res) => {
     const data = await connectionRequest.save();
 
     try {
-      status.includes("interested") && (await sendEmail());
+      status.includes("interested") && (await sendEmail(toUser.email));
     } catch (err) {
       console.log("Email Error: ", err.message);
     }

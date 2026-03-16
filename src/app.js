@@ -1,14 +1,11 @@
-import dotenv from "dotenv";
+import "./config/env.js";
 import express from "express";
 import connectDB from "./config/db.js";
 import cookieParser from "cookie-parser";
 import setupAPI from "./routes/index.js";
 import cors from "cors";
 
-const envFile = process.env.NODE_ENV
-  ? `.env.${process.env.NODE_ENV}`
-  : ".env.development";
-dotenv.config({ path: envFile });
+import "./utils/cronJob.js";
 
 const app = express();
 

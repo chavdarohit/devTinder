@@ -1,7 +1,7 @@
 import { SendEmailCommand } from "@aws-sdk/client-ses";
 import { sesClient } from "./sesClient.js";
 
-const createSendEmailCommand = (toAddress, fromAddress) => {
+const createSendEmailCommand = (toAddress, fromAddress, subject, body) => {
   return new SendEmailCommand({
     Destination: {
       /* required */
@@ -19,16 +19,16 @@ const createSendEmailCommand = (toAddress, fromAddress) => {
         /* required */
         Html: {
           Charset: "UTF-8",
-          Data: "<h1>This is from the SES</h1>",
+          Data: `<h1>${body}</h1>`,
         },
         Text: {
           Charset: "UTF-8",
-          Data: "This is from the SES",
+          Data: body,
         },
       },
       Subject: {
         Charset: "UTF-8",
-        Data: "Hello world from SES",
+        Data: subject,
       },
     },
     Source: fromAddress,
@@ -38,10 +38,12 @@ const createSendEmailCommand = (toAddress, fromAddress) => {
   });
 };
 
-export const run = async () => {
+export const sendEmail = async (toAddress, subject, body) => {
   const sendEmailCommand = createSendEmailCommand(
-    "example@gmail.com",
+    "rohitchavda449@gmail.com",
     "mail@devtinder.dynamicrc.run.place",
+    subject,
+    body,
   );
 
   try {
