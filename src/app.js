@@ -5,9 +5,14 @@ import cookieParser from "cookie-parser";
 import setupAPI from "./routes/index.js";
 import cors from "cors";
 
-dotenv.config();
+const envFile = process.env.NODE_ENV
+  ? `.env.${process.env.NODE_ENV}`
+  : ".env.development";
+dotenv.config({ path: envFile });
 
 const app = express();
+
+console.log(`starting in ${process.env.NODE_ENV} mode`);
 
 app.use(
   cors({
