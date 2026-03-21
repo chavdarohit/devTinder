@@ -39,7 +39,13 @@ export const requestSend = async (req, res) => {
     const data = await connectionRequest.save();
 
     try {
-      status.includes("interested") && (await sendEmail(toUser.email));
+      status.includes("interested") &&
+        (await sendEmail(
+          toUser.email,
+          "New Connection Request",
+          `You got ${status} request from ${req.user.firstName}`,
+          `You got ${status} request from ${req.user.firstName}`,
+        ));
     } catch (err) {
       console.log("Email Error: ", err.message);
     }
