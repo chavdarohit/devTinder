@@ -4,6 +4,8 @@ import connectDB from "./config/db.js";
 import cookieParser from "cookie-parser";
 import setupAPI from "./routes/index.js";
 import cors from "cors";
+import http from "http";
+import { initalizeSocket } from "./utils/socket.js";
 
 import "./utils/cronJob.js";
 
@@ -30,12 +32,16 @@ app.use((err, req, res, next) => {
   }
 });
 
+// instead of express creates server and hide it , we manually create the server and attach the express app and socket both in it and listen to that together
+const server = http.createServer(app);
+initalizeSocket(server);
+
 //! TIP: Connect to the database first and then start the server
 
 connectDB()
   .then(() => {
     console.log("Database connected successfully");
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log(`Server is running on port ${process.env.PORT}`);
     });
   })
