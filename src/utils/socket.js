@@ -17,10 +17,25 @@ export const initalizeSocket = (server) => {
     },
   });
 
+  const userOnlineList = new Map();
+
   io.on("connection", (socket) => {
+    socket.on("goOnline", ({ userId }) => {
+      userOnlineList.set(userId, socket.id);
+      // Immediately broadcast to ALL clients that this user has come online!
+      io.emit("status-changed", {
+        userOnlineList: Object.fromEntries(userOnlineList),
+      });
+    });
+
     socket.on("joinChat", ({ senderId, receiverId }) => {
       const roomId = getHashedRoomId(senderId, receiverId);
       socket.join(roomId);
+      userOnlineList.set(senderId, socket.id);
+
+      io.to(roomId).emit("status-changed", {
+        userOnlineList: Object.fromEntries(userOnlineList),
+      });
     });
     socket.on(
       "sendMessage",
@@ -59,6 +74,25 @@ export const initalizeSocket = (server) => {
         }
       },
     );
-    socket.on("disconnect", () => {});
+
+    socket.on("disconnect", (reason) => {
+      // Find the user ID by checking which map entry has this socket.id
+      let disconnectedUserId = null;
+
+      for (const [key, value] of userOnlineList.entries()) {
+        if (value === socket.id) {
+          disconnectedUserId = key;
+          break;
+        }
+      }
+
+      if (disconnectedUserId) {
+        userOnlineList.delete(disconnectedUserId);
+
+        io.emit("status-changed", {
+          userOnlineList: Object.fromEntries(userOnlineList),
+        });
+      }
+    });
   });
 };
